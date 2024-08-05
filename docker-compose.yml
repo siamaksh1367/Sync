@@ -1,0 +1,73 @@
+version: '3.4'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "yourStrong(!)Password"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+
+  sync.dev:
+    build:
+      context: .
+      dockerfile: Sync.Dev/Dockerfile
+    environment:
+      - SQLConnectionString__ConnectionString=Server=sqlserver,1433;Database=SyncDb;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True
+    entrypoint: ["bash", "-c"]
+    command: >
+      "dotnet tool restore &&
+       dotnet ef database update --project Sync.Dev"
+    depends_on:
+      - sqlserver
+    networks:
+      - app-network
+
+
+  sync.collect:
+    image: ${DOCKER_REGISTRY-}synccollect
+    build:
+      context: .
+      dockerfile: Sync.Collect/Dockerfile
+    environment:
+      - Period__StartDate=2021-01-01
+      - Period__EndDate=2023-01-01
+      - SQLConnectionString__ConnectionString=Server=sqlserver,1433;Database=SyncDb;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True
+      - HttpEndPoints__FeilSatFieldEndPoint=https://field-sat.cordulus.dev/api/v1/fields
+      - HttpEndPoints__FeilSatImagesEndPoint=https://field-sat.cordulus.dev/api/v1/fields/{fieldId}/images
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - sqlserver
+    networks:
+      - app-network
+
+  sync.api:
+    image: ${DOCKER_REGISTRY-}syncapi
+    build:
+      context: .
+      dockerfile: Sync.Api/Dockerfile
+    depends_on:
+      - sqlserver
+    environment:
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=mypass123
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - SQLConnectionString__ConnectionString=Server=sqlserver,1433;Database=SyncDb;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True
+    volumes:
+      - ${USERPROFILE}/.aspnet/https:/https/
+    ports:
+      - "8080:80"
+      - "8443:443"
+    networks:
+      - app-network
+
+ 
+
+networks:
+  app-network:
+    driver: bridge
+
+

@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "Sync.Collect": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7235"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 32192,
+      "useSSL": false
+    }
+  }
+}

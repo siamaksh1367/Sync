@@ -1,0 +1,17 @@
+﻿dotnet ef migrations add InitialCreate --project Sync.dal --startup-project sync.dev
+dotnet ef database update --project Sync.dev
+
+{
+  "HttpEndPoints": {
+    "FeilSatFieldEndPoint": "https://field-sat.cordulus.dev/api/v1/fields",
+    "FeilSatImagesEndPoint": "https://field-sat.cordulus.dev/api/v1/fields/{fieldId}/images"
+  },
+  "SQLConnectionString": {
+    "ConnectionString": "Server=localhost,1433;Database=SyncDb;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True"
+  },
+  "Period": {
+    "StartDate": "2023-02-01",
+    "EndDate": "2023-03-01"
+  }
+}
+

@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "Sync.Task": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7185"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 30907,
+      "useSSL": false
+    }
+  }
+}
